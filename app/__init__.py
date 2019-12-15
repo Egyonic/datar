@@ -25,7 +25,7 @@ def create_app(config_name="development"):
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
 
-    from .data import data_bp as data_blueprint
+    from .auth import auth_bp as data_blueprint
     app.register_blueprint(data_blueprint)
 
     from .api import api as api_blueprint

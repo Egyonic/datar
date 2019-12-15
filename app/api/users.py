@@ -1,4 +1,4 @@
-from flask import jsonify, request, current_app, url_for
+from flask import jsonify, json, request, current_app, url_for
 from . import api
 from ..models import User
 
@@ -7,3 +7,5 @@ from ..models import User
 def get_user(id):
     user = User.query.get_or_404(id)
     return jsonify(user.to_json())
+
+

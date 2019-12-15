@@ -1,4 +1,4 @@
-from flask import current_app
+from flask import current_app, request, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
@@ -17,6 +17,8 @@ class User(db.Model):
     name = db.Column(db.String(20), unique=True, nullable=True,index=True)
     email = db.Column(db.String(20), nullable=True)
     password = db.Column(db.String(20))
+    role = db.Column(db.Integer, default=1)
+
 
     # 定义组和用户之间的多对多关系
     groups = db.relationship('Group',
@@ -24,6 +26,14 @@ class User(db.Model):
                              back_populates='members')
     # 定义用户和记录的1对多关系
     records = db.relationship('Record', backref='user')
+
+    def to_json(self):
+        json_post = {
+            'id': self.id,
+            'name': self.name,
+            'email': self.email
+        }
+        return json_post
 
     def verify_password(self, password):
         return password == self.password
@@ -74,6 +84,7 @@ class Task(db.Model):
     __tablename__ = "tasks"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(20), index=True)
+    detail = db.Column(db.Text, default='')
     # start = db.Column(db.DateTime, default=datetime.now())
     # end = db.Column(db.DateTime)
     # 定义任务所属的分组
@@ -100,6 +111,7 @@ class Record(db.Model):
     tid = db.Column(db.Integer, db.ForeignKey('tasks.id'))
     done = db.Column(db.Boolean, default=False)
     time = db.Column(db.DateTime, default=datetime.now())
+    detail = db.Column(db.String(50))
 
     def __repr__(self):
         return '<Record id %d>' % self.id

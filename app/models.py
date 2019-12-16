@@ -19,7 +19,6 @@ class User(db.Model):
     password = db.Column(db.String(20))
     role = db.Column(db.Integer, default=1)
 
-
     # 定义组和用户之间的多对多关系
     groups = db.relationship('Group',
                              secondary=user_group,
@@ -28,12 +27,12 @@ class User(db.Model):
     records = db.relationship('Record', backref='user')
 
     def to_json(self):
-        json_post = {
+        json_user = {
             'id': self.id,
             'name': self.name,
             'email': self.email
         }
-        return json_post
+        return json_user
 
     def verify_password(self, password):
         return password == self.password
@@ -73,6 +72,14 @@ class Group(db.Model):
     # 定义组合任务的一对多关系
     tasks = db.relationship('Task', backref='group')
 
+    def to_json(self):
+        json_group = {
+            'id': self.id,
+            'name': self.name,
+            'detail': self.detail
+        }
+        return json_group
+
     def __init__(self, **kwargs):
         super(Group, self).__init__(**kwargs)
 
@@ -90,14 +97,14 @@ class Task(db.Model):
     # 定义任务所属的分组
     group_id = db.Column(db.Integer, db.ForeignKey('groups.id'))
 
-    # def __init__(self, **kwargs):
-    #     super(Task, self).__init__(**kwargs)
-    #     if(self.start is None):
-    #         self.start = datetime.now()
-    #     if(self.end is None):
-    #         t = datetime(self.start)
-    #         days = timedelta(days=3)
-    #         self.end = t + days
+    def to_json(self):
+        json_task = {
+            'id': self.id,
+            'name': self.name,
+            'group_id': self.group_id,
+            'detail': self.detail,
+        }
+        return json_task
 
     def __repr__(self):
         return '<Task %r>' % self.name
@@ -108,10 +115,20 @@ class Record(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     # 定义用户和记录的1对多关系
     uid = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
-    tid = db.Column(db.Integer, db.ForeignKey('tasks.id'))
+    tid = db.Column(db.Integer, db.ForeignKey('tasks.id'), index=True)
     done = db.Column(db.Boolean, default=False)
     time = db.Column(db.DateTime, default=datetime.now())
     detail = db.Column(db.String(50))
+
+    def to_json(self):
+        json_record = {
+            'id': self.id,
+            'user_id': self.uid,
+            'task_id': self.tid,
+            'done': self.done,
+            'detail': self.detail,
+        }
+        return json_record
 
     def __repr__(self):
         return '<Record id %d>' % self.id

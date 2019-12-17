@@ -69,7 +69,7 @@ class Group(db.Model):
     members = db.relationship('User',
                               secondary=user_group,
                               back_populates='groups')
-    # 定义组合任务的一对多关系
+    # 定义组和任务的一对多关系
     tasks = db.relationship('Task', backref='group')
 
     def to_json(self):
@@ -97,6 +97,8 @@ class Task(db.Model):
     # 定义任务所属的分组
     group_id = db.Column(db.Integer, db.ForeignKey('groups.id'))
 
+    records = db.relationship('Record', backref='task')
+
     def to_json(self):
         json_task = {
             'id': self.id,
@@ -120,11 +122,11 @@ class Record(db.Model):
     time = db.Column(db.DateTime, default=datetime.now())
     detail = db.Column(db.String(50))
 
+    # TODO 根据客户端的需求，将包含用户名等信息 self.user.name
     def to_json(self):
         json_record = {
             'id': self.id,
-            'user_id': self.uid,
-            'task_id': self.tid,
+            'user': self.user.name,
             'done': self.done,
             'detail': self.detail,
         }

@@ -10,17 +10,17 @@ def get_user(id):
 
 
 @api.route('/users/<int:id>/groups')
-def get_groups(id):
+def get_user_groups(id):
     user = User.query.get_or_404(id)
     groups = user.groups
     return jsonify({
-        'groups': [group.to_json() for group in groups],
+        'groups': [ group.to_json() for group in groups],
         'count': len(groups)
     })
 
 
 @api.route('/users/<int:id>/tasks')
-def get_tasks(id):
+def get_user_tasks(id):
     user = User.query.get_or_404(id)
     groups = user.groups
     if (groups is None) or (len(groups) == 0):
@@ -40,7 +40,7 @@ def get_tasks(id):
 
 
 @api.route('/users/<int:id>/records')
-def get_records(id):
+def get_user_records(id):
     user = User.query.get_or_404(id)
     records = user.records
     if records is None or len(records) == 0:

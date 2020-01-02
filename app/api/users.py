@@ -3,6 +3,7 @@ from . import api
 from ..models import User,Group
 from ..resJsons import msg_json
 
+
 @api.route('/users/<int:id>')
 def get_user(id):
     user = User.query.get_or_404(id)
@@ -14,7 +15,7 @@ def get_user_groups(id):
     user = User.query.get_or_404(id)
     groups = user.groups
     return jsonify({
-        'groups': [ group.to_json() for group in groups],
+        'groups': [group.to_json() for group in groups],
         'count': len(groups)
     })
 

@@ -53,7 +53,7 @@ class User(db.Model):
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
-        self.name = self.email
+        # self.name = self.email
 
     def __repr__(self):
         return '<User %r>' % self.name
@@ -104,7 +104,17 @@ class Task(db.Model):
             'id': self.id,
             'name': self.name,
             'group_id': self.group_id,
-            'detail': self.detail,
+            'group_name': self.group.name,
+            'detail': self.detail
+        }
+        return json_task
+
+    def to_json_no_group_name(self):
+        json_task = {
+            'id': self.id,
+            'name': self.name,
+            'group_id': self.group_id,
+            'detail': self.detail
         }
         return json_task
 
@@ -126,9 +136,12 @@ class Record(db.Model):
     def to_json(self):
         json_record = {
             'id': self.id,
-            'user': self.user.name,
+            'user_name': self.user.name,
+            'group_name': self.task.group.name,
             'done': self.done,
             'detail': self.detail,
+            'task_name': self.task.name,
+            'task_detail': self.task.detail
         }
         return json_record
 

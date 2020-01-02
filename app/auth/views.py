@@ -1,5 +1,5 @@
 from flask import render_template, redirect, request, url_for,json, current_app, make_response
-from flask import jsonify
+from flask import jsonify, logging, g
 from ..models import User
 from .. import db
 from . import auth_bp
@@ -21,15 +21,19 @@ def data_view():
 # 用户注册
 @auth_bp.route('/register', methods=['POST'])
 def register():
-    register_data = request.json
+    data = request.get_json()
+    register_data = json.loads(data)
+    # logger = logging.create_logger(current_app)
+    # print(type(register_data))
+
     if register_data is None:
         return msg_json('need register data')
     psd = register_data['password']
     email = register_data['email']
     # 检查是否提供了username
-    name = email
-    if 'name' in register_data:
-        name = register_data['name']
+    name = register_data['name']
+    if name is None:
+        name = email
     user = User(name=name,
                 password=psd,
                 email=email)
@@ -41,8 +45,11 @@ def register():
 
 @auth_bp.route('/login', methods=['POST', 'GET'])
 def login():
-    info = request.json
-    if info is None:
+    info_json = request.get_json()
+    info = json.loads(info_json)
+    if info is None \
+            or info['email'] is None \
+            or info['password'] is None:
         return msg_json('need login json data')
 
     user = User.query.filter_by(email=info['email']).first()
@@ -50,6 +57,9 @@ def login():
         return msg_json('No such user')
 
     if user.verify_password(info['password']):
+        # 设置当前用户
+        g.current_user = user
+        g.token_used = False
         return jsonify(user.to_json())
     else:
         return jsonify({
